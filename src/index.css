@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Arima:wght@300;400;500;600;700&display=swap');
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom Speakeasy styles */
+:root {
+  --color-gold: #d4af37;
+  --color-cream: #f5e6d3;
+  --color-dark-green: #1a2f23;
+  --color-light-green: #2c4c3b;
+  --color-accent: #33ff77;
+  --shadow-gold: 0 0 10px var(--color-gold);
+  --shadow-cream: 0 0 10px var(--color-cream);
+  --shadow-accent: 0 0 10px var(--color-accent);
+}
+
+body {
+  background-color: var(--color-dark-green);
+  color: var(--color-cream);
+  font-family: 'Arial', sans-serif;
+}
+
+.font-display {
+  font-family: 'Arima', cursive;
+}
+
+.speakeasy-card {
+  background-color: var(--color-light-green);
+  border: 1px solid var(--color-gold);
+}
+
+.speakeasy-button {
+  background-color: var(--color-gold);
+  color: var(--color-dark-green);
+  transition: all 0.3s ease;
+}
+
+.speakeasy-button:hover {
+  background-color: var(--color-cream);
+}
+
+.speakeasy-input {
+  background-color: var(--color-dark-green);
+  color: var(--color-cream);
+  border: 1px solid var(--color-gold);
+}
+
+.speakeasy-input:focus {
+  border-color: var(--color-cream);
+}
+
+/* Text colors */
+.text-gold {
+  color: var(--color-gold);
+}
+
+.text-cream {
+  color: var(--color-cream);
+}
+
+.text-accent {
+  color: var(--color-accent);
+}
+
+/* Backgrounds */
+.bg-dark {
+  background-color: var(--color-dark-green);
+}
+
+.bg-light-green {
+  background-color: var(--color-light-green);
+}
+
+/* Borders */
+.border-gold {
+  border-color: var(--color-gold);
+}
+
+.border-accent {
+  border-color: var(--color-accent);
+}
+
+/* Shadows and Glows */
+.shadow-gold {
+  box-shadow: var(--shadow-gold);
+}
+
+.shadow-cream {
+  box-shadow: var(--shadow-cream);
+}
+
+.shadow-accent {
+  box-shadow: var(--shadow-accent);
+}
+
+.text-shadow-gold {
+  text-shadow: var(--shadow-gold);
+}
+
+.text-shadow-cream {
+  text-shadow: var(--shadow-cream);
+}
+
+.text-shadow-accent {
+  text-shadow: var(--shadow-accent);
+}
+
+/* Hover Effects */
+.hover\:text-shadow-gold:hover {
+  text-shadow: var(--shadow-gold);
+}
+
+.hover\:text-shadow-cream:hover {
+  text-shadow: var(--shadow-cream);
+}
+
+.hover\:text-shadow-accent:hover {
+  text-shadow: var(--shadow-accent);
+}
+
+.hover\:shadow-gold:hover {
+  box-shadow: var(--shadow-gold);
+}
+
+.hover\:shadow-cream:hover {
+  box-shadow: var(--shadow-cream);
+}
+
+.hover\:shadow-accent:hover {
+  box-shadow: var(--shadow-accent);
+}
+
+/* Transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}

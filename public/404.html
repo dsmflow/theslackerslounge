@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>The Slackers Lounge</title>
+  <script type="text/javascript">
+    // Single Page Apps for GitHub Pages
+    // MIT License
+    // https://github.com/rafgraph/spa-github-pages
+    var segmentCount = 0;
+    var validPaths = ['assistant', 'gallery', 'games/td'];
+
+    var l = window.location;
+    var path = l.pathname.slice(1).split('/').slice(segmentCount).join('/');
+    
+    // Check if this is a valid route
+    var isValidPath = validPaths.includes(path) || path === '' || path.startsWith('games/');
+
+    if (isValidPath) {
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    }
+  </script>
+</head>
+<body>
+  <h1 style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">Redirecting...</h1>
+</body>
+</html>
