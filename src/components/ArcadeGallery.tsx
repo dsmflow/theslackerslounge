@@ -21,7 +21,7 @@ const games: Game[] = [
   },
   {
     title: 'Tower Defense',
-    path: '/arcade/tower-defense',
+    path: '/arcade/tower-defense/game/build/',
     description: 'A strategic tower defense game where you must protect your base from waves of enemies. Place towers wisely and survive as long as you can!'
   }
 ];

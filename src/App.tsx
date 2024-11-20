@@ -29,8 +29,7 @@ const App: React.FC = () => {
             <Route path="/arcade" element={<ArcadeGallery />} />
             <Route path="/games/snake" element={<SnakeGame />} />
             <Route path="/arcade/ai-pong" element={<AIPong />} />
-            <Route path="/arcade/tower-defense" element={<TowerDefense />} />
-            <Route path="/arcade/tower-defense/game/build/td.html" element={<TowerDefense />} />
+            <Route path="/arcade/tower-defense/game/build" element={<TowerDefense />} />
           </Routes>
         </main>
         <Footer />
