@@ -25,7 +25,7 @@ const Header: React.FC = () => {
               </Link>
             </li>
             <li>
-              <Link to="/games/snake" className="text-cream hover:text-gold transition-colors duration-300" aria-label="The Arcade">
+              <Link to="/arcade" className="text-cream hover:text-gold transition-colors duration-300" aria-label="The Arcade">
                 <Gamepad2 size={24} />
               </Link>
             </li>

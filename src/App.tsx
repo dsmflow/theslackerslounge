@@ -6,6 +6,7 @@ import HomePage from './components/HomePage';
 import AIAssistant from './components/AIAssistant';
 import ConservatoryGallery from './components/ConservatoryGallery';
 import SnakeGame from './components/snake-game';
+import ArcadeGallery from './components/ArcadeGallery';
 import { initializeCache } from './utils/imageCache';
 import { initializeModelLoader } from './utils/modelLoader';
 
@@ -23,7 +24,17 @@ const App: React.FC = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/assistant" element={<AIAssistant />} />
             <Route path="/gallery" element={<ConservatoryGallery />} />
+            <Route path="/arcade" element={<ArcadeGallery />} />
             <Route path="/games/snake" element={<SnakeGame />} />
+            <Route path="/arcade/ai-pong" element={
+              <div className="w-full h-full bg-dark-green">
+                <iframe 
+                  src="/arcade/ai-pong/index.html" 
+                  className="w-full h-screen border-none"
+                  title="AI Pong"
+                />
+              </div>
+            } />
           </Routes>
         </main>
         <Footer />
