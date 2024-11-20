@@ -3,7 +3,9 @@ import React, { useEffect } from 'react';
 const TowerDefense: React.FC = () => {
   useEffect(() => {
     // Set flag to prevent SPA routing inside the iframe
-    window.__ARCADE_SECTION__ = true;
+    if (window.parent === window) {
+      window.__ARCADE_SECTION__ = true;
+    }
   }, []);
 
   return (

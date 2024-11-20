@@ -30,6 +30,7 @@ const App: React.FC = () => {
             <Route path="/games/snake" element={<SnakeGame />} />
             <Route path="/arcade/ai-pong" element={<AIPong />} />
             <Route path="/arcade/tower-defense" element={<TowerDefense />} />
+            <Route path="/arcade/tower-defense/game/build/td.html" element={<TowerDefense />} />
           </Routes>
         </main>
         <Footer />

@@ -1,0 +1,3 @@
+[submodule "arcade/tower-defense/game"]
+	path = arcade/tower-defense/game
+	url = https://github.com/dsmflow/html5-tower-defense.git
