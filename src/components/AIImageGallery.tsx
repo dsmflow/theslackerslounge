@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image as ImageIcon, Plus, X, Square, RectangleHorizontal, RectangleVertical, Sparkles, Trees, Camera, Cpu, Maximize, Monitor, Settings } from 'lucide-react';
 import { generateImage } from '../utils/openai';
 
@@ -12,6 +12,13 @@ interface ImageSettings {
   quality: 'standard' | 'hd';
   style: 'vivid' | 'natural';
   model: 'dall-e-2' | 'dall-e-3';
+}
+
+interface OllamaSettings {
+  baseUrl: string;
+  connected: boolean;
+  availableModels: string[];
+  selectedModel: string;
 }
 
 const AIImageGallery: React.FC = () => {
@@ -28,6 +35,46 @@ const AIImageGallery: React.FC = () => {
     style: 'vivid',
     model: 'dall-e-3'
   });
+  const [ollamaSettings, setOllamaSettings] = useState<OllamaSettings>({
+    baseUrl: '',
+    connected: false,
+    availableModels: [],
+    selectedModel: ''
+  });
+
+  const testOllamaConnection = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await fetch(`${ollamaSettings.baseUrl}/api/tags`);
+      if (!response.ok) {
+        throw new Error('Failed to connect to Ollama server');
+      }
+      
+      const data = await response.json();
+      const models = data.models || [];
+      
+      setOllamaSettings(prev => ({
+        ...prev,
+        connected: true,
+        availableModels: models.map((model: any) => model.name),
+        selectedModel: models.length > 0 ? models[0].name : ''
+      }));
+      
+    } catch (error) {
+      console.error('Error connecting to Ollama:', error);
+      setError(error instanceof Error ? error.message : 'Failed to connect to Ollama server');
+      setOllamaSettings(prev => ({
+        ...prev,
+        connected: false,
+        availableModels: [],
+        selectedModel: ''
+      }));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGenerate = async () => {
     setIsLoading(true);
@@ -86,6 +133,42 @@ const AIImageGallery: React.FC = () => {
         </div>
 
         <div className="bg-dark/90 rounded-lg p-8 border-2 border-gold shadow-gold">
+          {/* Ollama Connection Settings */}
+          <div className="mb-6 p-4 border-2 border-accent rounded-lg">
+            <div className="flex items-center space-x-4 mb-4">
+              <input
+                type="text"
+                value={ollamaSettings.baseUrl}
+                onChange={(e) => setOllamaSettings(prev => ({ ...prev, baseUrl: e.target.value }))}
+                placeholder="Enter Ollama server URL (e.g., http://your-ip:11434)"
+                className="flex-grow p-2 rounded-lg bg-dark/50 border-2 border-gold text-cream placeholder-cream/50 focus:outline-none focus:border-accent"
+              />
+              <button
+                onClick={testOllamaConnection}
+                disabled={isLoading || !ollamaSettings.baseUrl}
+                className={`px-4 py-2 rounded-lg ${
+                  ollamaSettings.connected ? 'bg-green-600' : 'bg-accent'
+                } text-cream hover:bg-accent/80 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {ollamaSettings.connected ? 'Connected' : 'Connect'}
+              </button>
+            </div>
+            
+            {ollamaSettings.connected && ollamaSettings.availableModels.length > 0 && (
+              <div className="flex items-center space-x-4">
+                <select
+                  value={ollamaSettings.selectedModel}
+                  onChange={(e) => setOllamaSettings(prev => ({ ...prev, selectedModel: e.target.value }))}
+                  className="p-2 rounded-lg bg-dark/50 border-2 border-gold text-cream focus:outline-none focus:border-accent"
+                >
+                  {ollamaSettings.availableModels.map(model => (
+                    <option key={model} value={model}>{model}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
           {/* Image Generation Form */}
           <div className="mb-8">
             <div className="flex space-x-4">

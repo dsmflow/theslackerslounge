@@ -23,6 +23,11 @@ export default defineConfig({
     target: 'es2015',
     chunkSizeWarningLimit: 3000,
     rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        arcade: resolve(__dirname, 'arcade/index.html'),
+        'ai-pong': resolve(__dirname, 'arcade/ai-pong/index.html')
+      },
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],

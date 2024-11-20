@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Slackers Lounge Arcade</title>
+    <script>
+        // Prevent SPA routing for arcade section
+        if (window.parent === window) {
+            window.__ARCADE_SECTION__ = true;
+        }
+    </script>
     <style>
         body {
             font-family: 'Arima', sans-serif;
@@ -89,7 +95,7 @@
         <h1>The Slackers Lounge Arcade</h1>
         
         <div class="games-grid">
-            <a href="ai-pong/index.html" class="game-card">
+            <a href="/arcade/ai-pong/index.html" class="game-card">
                 <div class="game-title">AI Pong</div>
                 <div class="game-description">
                     A modern take on the classic Pong game featuring an AI opponent with adjustable difficulty levels.

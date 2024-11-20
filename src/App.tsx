@@ -7,6 +7,7 @@ import AIAssistant from './components/AIAssistant';
 import ConservatoryGallery from './components/ConservatoryGallery';
 import SnakeGame from './components/snake-game';
 import ArcadeGallery from './components/ArcadeGallery';
+import AIPong from './components/AIPong';
 import { initializeCache } from './utils/imageCache';
 import { initializeModelLoader } from './utils/modelLoader';
 
@@ -26,15 +27,7 @@ const App: React.FC = () => {
             <Route path="/gallery" element={<ConservatoryGallery />} />
             <Route path="/arcade" element={<ArcadeGallery />} />
             <Route path="/games/snake" element={<SnakeGame />} />
-            <Route path="/arcade/ai-pong" element={
-              <div className="w-full h-full bg-dark-green">
-                <iframe 
-                  src="/theslackerslounge/arcade/ai-pong/index.html" 
-                  className="w-full h-screen border-none"
-                  title="AI Pong"
-                />
-              </div>
-            } />
+            <Route path="/arcade/ai-pong" element={<AIPong />} />
           </Routes>
         </main>
         <Footer />

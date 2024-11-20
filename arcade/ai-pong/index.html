@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Pong - The Slackers Lounge</title>
+    <script defer>
+        window.onload = function() {
+            if (typeof resizeCanvas === 'function' && typeof resetGame === 'function') {
+                resizeCanvas();
+                resetGame();
+            }
+        };
+    </script>
     <style>
         :root {
             --neon-color: #0ff;
@@ -144,6 +152,8 @@
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="neon-theme.css" rel="stylesheet">
+    <script src="game-colors.js" defer></script>
 </head>
 <body>
     <div id="gameContainer">
@@ -560,10 +570,22 @@
             }, 250);
         });
 
-        // Initialize game
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        resetGame();
+        // Event Listeners
+        startBtn.addEventListener('click', () => {
+            if (!gameStarted) {
+                gameStarted = true;
+                gameLoop();
+            }
+        });
+
+        playAgainBtn.addEventListener('click', () => {
+            gameOverDisplay.style.display = 'none';
+            resetGame();
+            setTimeout(() => {
+                gameStarted = true;
+                gameLoop();
+            }, 250);
+        });
     </script>
 </body>
 </html>

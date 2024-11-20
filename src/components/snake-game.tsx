@@ -17,8 +17,8 @@ interface GameState {
 const GRID_SIZE = 20;
 const BASE_CELL_SIZE = 25;
 const INITIAL_SPEED = 150;
-const MAX_SPEED = 80;
-const SPEED_INCREMENT = 2;
+const MAX_SPEED = 100;  // Increased minimum time between moves
+const SPEED_INCREMENT = 1;  // Reduced speed increment
 
 // Add mobile detection and dynamic sizing
 const getDynamicCellSize = () => {
@@ -33,12 +33,12 @@ const getDynamicCellSize = () => {
 
 const COLORS = {
   background: '#1a1a1a',
-  grid: 'rgba(245, 230, 211, 0.125)', // Brighter cream color for grid
+  grid: 'rgba(245, 230, 211, 0.125)',
   gold: '#ffd700',
   neonGreen: '#33ff77',
   neonWhite: '#ffffff',
   textShadow: '0 0 10px',
-  headColor: '#60a5fa', // Blue color for head section
+  headColor: '#60a5fa',
 };
 
 const getRandomPosition = (): Position => ({
@@ -78,11 +78,9 @@ const SnakeGame: React.FC = () => {
     ctx.fillStyle = COLORS.background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw grid lines with subtle glow
+    // Draw grid lines (without glow for better performance)
     ctx.strokeStyle = COLORS.grid;
     ctx.lineWidth = 0.5;
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = COLORS.grid;
     ctx.beginPath();
     for (let i = 0; i <= GRID_SIZE; i++) {
       ctx.moveTo(i * cellSize, 0);
@@ -91,61 +89,54 @@ const SnakeGame: React.FC = () => {
       ctx.lineTo(GRID_SIZE * cellSize, i * cellSize);
     }
     ctx.stroke();
-    ctx.shadowBlur = 0;
 
     // Pre-calculate common values
-    const timestamp = Date.now();
-    const rhombusSize = cellSize * 0.8; // Slightly smaller than cell size
+    const rhombusSize = cellSize * 0.8;
     const halfCell = cellSize / 2;
 
-    // Draw snake segments as rhombii
+    // Draw snake segments
+    ctx.lineWidth = 2;
     gameState.snake.forEach((segment, index) => {
       const isHead = index === 0;
       const centerX = segment.x * cellSize + halfCell;
       const centerY = segment.y * cellSize + halfCell;
       
-      // Set up color and glow effect based on segment position
-      let segmentColor;
-      if (isHead) {
-        segmentColor = COLORS.headColor;
-      } else {
-        segmentColor = index % 2 === 0 ? COLORS.neonGreen : COLORS.gold;
-      }
+      // Set color based on segment position
+      ctx.strokeStyle = isHead ? COLORS.headColor : (index % 2 === 0 ? COLORS.neonGreen : COLORS.gold);
       
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = segmentColor;
-      ctx.strokeStyle = segmentColor;
+      // Add glow only to head for better performance
+      if (isHead) {
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = COLORS.headColor;
+      }
       
       // Draw rhombus
       ctx.beginPath();
-      ctx.moveTo(centerX, centerY - rhombusSize/2); // Top point
-      ctx.lineTo(centerX + rhombusSize/2, centerY); // Right point
-      ctx.lineTo(centerX, centerY + rhombusSize/2); // Bottom point
-      ctx.lineTo(centerX - rhombusSize/2, centerY); // Left point
+      ctx.moveTo(centerX, centerY - rhombusSize/2);
+      ctx.lineTo(centerX + rhombusSize/2, centerY);
+      ctx.lineTo(centerX, centerY + rhombusSize/2);
+      ctx.lineTo(centerX - rhombusSize/2, centerY);
       ctx.closePath();
-      
-      // Set line properties
-      ctx.lineWidth = 2;
-      
-      // Draw outline only
       ctx.stroke();
+      
+      // Reset shadow after head
+      if (isHead) {
+        ctx.shadowBlur = 0;
+      }
     });
 
-    // Draw food with wireframe style
+    // Draw food
     ctx.strokeStyle = COLORS.neonWhite;
     ctx.shadowBlur = 10;
     ctx.shadowColor = COLORS.neonWhite;
-    ctx.lineWidth = 2;
     
     const foodX = gameState.food.x * cellSize + cellSize / 2;
     const foodY = gameState.food.y * cellSize + cellSize / 2;
-    const foodRadius = cellSize * 0.25; // Half the size of cell
+    const foodRadius = cellSize * 0.25;
     
     ctx.beginPath();
     ctx.arc(foodX, foodY, foodRadius, 0, Math.PI * 2);
     ctx.stroke();
-
-    // Reset shadow effect
     ctx.shadowBlur = 0;
   }, [gameState, cellSize]);
 
