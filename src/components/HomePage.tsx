@@ -59,9 +59,8 @@ const HomePage: React.FC = () => {
           <div className="p-4 rounded-lg border-2 border-accent shadow-accent bg-dark/50 hover:border-cream hover:shadow-cream transition-all duration-300 flex flex-col">
             <h3 className="text-xl font-display text-accent mb-2 text-shadow-accent">The Arcade</h3>
             <p className="text-cream mb-4 flex-grow text-shadow-cream opacity-90">Challenge yourself with our collection of retro-inspired games.</p>
-            <div className="flex justify-center space-x-2">
-              <Link to="/games/snake" className="inline-block px-4 py-2 rounded-md border-2 border-gold text-gold hover:bg-gold hover:text-dark transition-all duration-300 hover:shadow-gold text-shadow-gold">Neon Snake</Link>
-              <Link to="/games/tower-defense" className="inline-block px-4 py-2 rounded-md border-2 border-gold text-gold hover:bg-gold hover:text-dark transition-all duration-300 hover:shadow-gold text-shadow-gold">Tower Defense</Link>
+            <div className="flex justify-center">
+              <Link to="/arcade" className="inline-block px-4 py-2 rounded-md border-2 border-gold text-gold hover:bg-gold hover:text-dark transition-all duration-300 hover:shadow-gold text-shadow-gold">Enter</Link>
             </div>
           </div>
         </div>

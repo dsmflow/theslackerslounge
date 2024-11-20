@@ -29,7 +29,7 @@ const App: React.FC = () => {
             <Route path="/arcade/ai-pong" element={
               <div className="w-full h-full bg-dark-green">
                 <iframe 
-                  src="/arcade/ai-pong/index.html" 
+                  src="/theslackerslounge/arcade/ai-pong/index.html" 
                   className="w-full h-screen border-none"
                   title="AI Pong"
                 />
