@@ -18,6 +18,11 @@ const games: Game[] = [
     title: 'AI Pong',
     path: '/arcade/ai-pong',
     description: 'A classic game of Pong with an AI opponent. Test your reflexes against the computer!'
+  },
+  {
+    title: 'Tower Defense',
+    path: '/arcade/tower-defense',
+    description: 'A strategic tower defense game where you must protect your base from waves of enemies. Place towers wisely and survive as long as you can!'
   }
 ];
 
