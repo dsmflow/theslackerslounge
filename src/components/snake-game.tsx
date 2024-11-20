@@ -15,10 +15,21 @@ interface GameState {
 }
 
 const GRID_SIZE = 20;
-const CELL_SIZE = 25;
+const BASE_CELL_SIZE = 25;
 const INITIAL_SPEED = 150;
 const MAX_SPEED = 80;
 const SPEED_INCREMENT = 2;
+
+// Add mobile detection and dynamic sizing
+const getDynamicCellSize = () => {
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    // On mobile, make the grid fit the screen width with some padding
+    const availableWidth = window.innerWidth - 32; // 32px for padding
+    return Math.floor(availableWidth / GRID_SIZE);
+  }
+  return BASE_CELL_SIZE;
+};
 
 const COLORS = {
   background: '#1a1a1a',
@@ -37,6 +48,7 @@ const getRandomPosition = (): Position => ({
 
 const SnakeGame: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [cellSize, setCellSize] = useState(getDynamicCellSize());
   const [gameState, setGameState] = useState<GameState>({
     snake: [{ x: 10, y: 10 }],
     food: getRandomPosition(),
@@ -51,11 +63,11 @@ const SnakeGame: React.FC = () => {
   const lastRenderTimeRef = useRef<number>(0);
 
   const createGradient = useCallback((ctx: CanvasRenderingContext2D, color1: string, color2: string) => {
-    const gradient = ctx.createLinearGradient(0, 0, CELL_SIZE, CELL_SIZE);
+    const gradient = ctx.createLinearGradient(0, 0, cellSize, cellSize);
     gradient.addColorStop(0, color1);
     gradient.addColorStop(1, color2);
     return gradient;
-  }, []);
+  }, [cellSize]);
 
   const drawGame = useCallback(() => {
     const canvas = canvasRef.current;
@@ -73,24 +85,24 @@ const SnakeGame: React.FC = () => {
     ctx.shadowColor = COLORS.grid;
     ctx.beginPath();
     for (let i = 0; i <= GRID_SIZE; i++) {
-      ctx.moveTo(i * CELL_SIZE, 0);
-      ctx.lineTo(i * CELL_SIZE, GRID_SIZE * CELL_SIZE);
-      ctx.moveTo(0, i * CELL_SIZE);
-      ctx.lineTo(GRID_SIZE * CELL_SIZE, i * CELL_SIZE);
+      ctx.moveTo(i * cellSize, 0);
+      ctx.lineTo(i * cellSize, GRID_SIZE * cellSize);
+      ctx.moveTo(0, i * cellSize);
+      ctx.lineTo(GRID_SIZE * cellSize, i * cellSize);
     }
     ctx.stroke();
     ctx.shadowBlur = 0;
 
     // Pre-calculate common values
     const timestamp = Date.now();
-    const rhombusSize = CELL_SIZE * 0.8; // Slightly smaller than cell size
-    const halfCell = CELL_SIZE / 2;
+    const rhombusSize = cellSize * 0.8; // Slightly smaller than cell size
+    const halfCell = cellSize / 2;
 
     // Draw snake segments as rhombii
     gameState.snake.forEach((segment, index) => {
       const isHead = index === 0;
-      const centerX = segment.x * CELL_SIZE + halfCell;
-      const centerY = segment.y * CELL_SIZE + halfCell;
+      const centerX = segment.x * cellSize + halfCell;
+      const centerY = segment.y * cellSize + halfCell;
       
       // Set up color and glow effect based on segment position
       let segmentColor;
@@ -125,9 +137,9 @@ const SnakeGame: React.FC = () => {
     ctx.shadowColor = COLORS.neonWhite;
     ctx.lineWidth = 2;
     
-    const foodX = gameState.food.x * CELL_SIZE + CELL_SIZE / 2;
-    const foodY = gameState.food.y * CELL_SIZE + CELL_SIZE / 2;
-    const foodRadius = CELL_SIZE * 0.25; // Half the size of cell
+    const foodX = gameState.food.x * cellSize + cellSize / 2;
+    const foodY = gameState.food.y * cellSize + cellSize / 2;
+    const foodRadius = cellSize * 0.25; // Half the size of cell
     
     ctx.beginPath();
     ctx.arc(foodX, foodY, foodRadius, 0, Math.PI * 2);
@@ -135,7 +147,7 @@ const SnakeGame: React.FC = () => {
 
     // Reset shadow effect
     ctx.shadowBlur = 0;
-  }, [gameState]);
+  }, [gameState, cellSize]);
 
   const moveSnake = useCallback(() => {
     if (gameState.gameOver || gameState.paused) return;
@@ -279,6 +291,25 @@ const SnakeGame: React.FC = () => {
     };
   }, [moveSnake, drawGame, speed]);
 
+  // Add resize handler
+  useEffect(() => {
+    const handleResize = () => {
+      const newCellSize = getDynamicCellSize();
+      setCellSize(newCellSize);
+      
+      // Update canvas size
+      if (canvasRef.current) {
+        canvasRef.current.width = GRID_SIZE * newCellSize;
+        canvasRef.current.height = GRID_SIZE * newCellSize;
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial setup
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="min-h-screen bg-dark py-12">
       <div className="text-center mb-8">
@@ -309,12 +340,12 @@ const SnakeGame: React.FC = () => {
         <div className="border-2 border-neonGreen shadow-neonGreen rounded-lg p-4 bg-dark/50 mb-4">
           <canvas
             ref={canvasRef}
-            width={GRID_SIZE * CELL_SIZE}
-            height={GRID_SIZE * CELL_SIZE}
+            width={GRID_SIZE * cellSize}
+            height={GRID_SIZE * cellSize}
             className="mx-auto"
             style={{
-              width: `${GRID_SIZE * CELL_SIZE}px`,
-              height: `${GRID_SIZE * CELL_SIZE}px`,
+              width: `${GRID_SIZE * cellSize}px`,
+              height: `${GRID_SIZE * cellSize}px`,
             }}
           />
         </div>
@@ -359,8 +390,7 @@ const SnakeGame: React.FC = () => {
             onClick={() => handleKeyPress({ key: ' ', preventDefault: () => {} } as KeyboardEvent)}
             className="w-full mt-4 py-3 rounded-lg border-2 border-gold shadow-gold bg-dark/50 text-gold"
           >
-            {gameState.paused ? 'Resume' : 'Pause'}
-          </button>
+            {gameState.paused ? 'Resume' : 'Pause'}</button>
         </div>
 
         {/* Instructions */}
@@ -375,8 +405,7 @@ const SnakeGame: React.FC = () => {
             </p>
           ) : (
             <p className="text-xl font-display text-neonGreen text-shadow-neonGreen">
-              {window.innerWidth >= 768 ? 'Use arrow keys to move, Space to pause' : 'Use the D-pad to move'}
-            </p>
+              {window.innerWidth >= 768 ? 'Use arrow keys to move, Space to pause' : 'Use the D-pad to move'}</p>
           )}
         </div>
       </div>

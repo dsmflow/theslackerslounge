@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pong - The Slackers Lounge</title>
+    <style>
+        :root {
+            --neon-color: #0ff;
+            --neon-text-color: #ff0;
+        }
+
+        body {
+            margin: 0;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Press Start 2P', cursive;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            margin: 20px auto;
+        }
+
+        canvas {
+            border: 2px solid var(--neon-color);
+            box-shadow: 0 0 10px var(--neon-color),
+                       inset 0 0 10px var(--neon-color);
+        }
+
+        #score {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            color: var(--neon-text-color);
+            text-shadow: 0 0 5px var(--neon-text-color),
+                        0 0 10px var(--neon-text-color),
+                        0 0 15px var(--neon-text-color);
+        }
+
+        #controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: 2px solid var(--neon-color);
+            color: #fff;
+            padding: 10px 20px;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px var(--neon-color);
+        }
+
+        .control-btn:hover {
+            background: var(--neon-color);
+            color: #000;
+        }
+
+        .difficulty-select {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .difficulty-btn {
+            background: transparent;
+            border: 2px solid var(--neon-color);
+            color: #fff;
+            padding: 10px 20px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px var(--neon-color);
+        }
+
+        .difficulty-btn.active {
+            background: var(--neon-color);
+            color: #000;
+        }
+
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: none;
+            z-index: 10;
+        }
+
+        #gameOver h2 {
+            color: var(--neon-text-color);
+            text-shadow: 0 0 5px var(--neon-text-color),
+                        0 0 10px var(--neon-text-color),
+                        0 0 15px var(--neon-text-color);
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            #mobileControls {
+                display: none; /* Hide the arrow controls */
+            }
+
+            /* Ensure the game container fills the available space */
+            #gameContainer {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            canvas {
+                max-width: 100%;
+                max-height: 100vh;
+                object-fit: contain;
+            }
+        }
+
+        @media (orientation: landscape) and (max-width: 768px) {
+            #gameContainer {
+                padding: 10px;
+            }
+            
+            canvas {
+                height: 95vh;
+                width: auto;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="score">0 - 0</div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="gameOver">
+            <h2>Game Over!</h2>
+            <button class="control-btn" id="playAgainBtn">Play Again</button>
+        </div>
+    </div>
+    <div class="difficulty-select">
+        <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+    </div>
+    <div id="controls">
+        <button class="control-btn" id="startBtn">Start Game</button>
+        <button class="control-btn" id="resetBtn">Reset</button>
+    </div>
+
+    <script>
+        // Game state
+        let gameStarted = false;
+        let animationId;
+        let difficulty = 'easy';
+        let keysPressed = new Set();
+        let playerScore = 0;
+        let aiScore = 0;
+        let isResettingBall = false;
+        const WINNING_SCORE = 10;
+        
+        // Game objects
+        const game = {
+            player: {
+                y: 0,
+                color: '#0f0'  // neon green
+            },
+            ai: {
+                y: 0,
+                color: '#FFFDD0'  // cream
+            },
+            ball: {
+                x: 0,
+                y: 0,
+                size: 10,
+                speedX: 0,
+                speedY: 0,
+                color: '#0ff',  // cyan
+                trail: []
+            }
+        };
+
+        // Get DOM elements
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverDisplay = document.getElementById('gameOver');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+
+        let gameWidth, gameHeight;
+        let paddleHeight, paddleWidth, ballSize;
+        
+        const DIFFICULTY_SETTINGS = {
+            easy: {
+                aiSpeed: 0.002, // Reduced from 0.008 (slowed down by 400%)
+                ballSpeedMultiplier: 1,
+                aiPredictionError: 0.3
+            },
+            medium: {
+                aiSpeed: 0.00375, // Reduced from 0.015 (slowed down by 400%)
+                ballSpeedMultiplier: 1.2,
+                aiPredictionError: 0.15
+            },
+            hard: {
+                aiSpeed: 0.00625, // Reduced from 0.025 (slowed down by 400%)
+                ballSpeedMultiplier: 1.4,
+                aiPredictionError: 0.05
+            }
+        };
+
+        function resizeCanvas() {
+            // Make canvas fill 90% of the smaller screen dimension
+            const screenSize = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.7);
+            gameWidth = Math.floor(screenSize * 1.5);  // 3:2 aspect ratio
+            gameHeight = Math.floor(screenSize);
+            
+            canvas.width = gameWidth;
+            canvas.height = gameHeight;
+
+            // Scale game elements based on canvas size
+            paddleHeight = Math.floor(gameHeight * 0.1875); // Increased from 0.15 to 0.1875 (25% longer)
+            paddleWidth = Math.floor(gameWidth * 0.02);
+            ballSize = Math.floor(gameWidth * 0.015);
+
+            // Reset positions
+            resetGame();
+        }
+
+        function resetGame() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            // Add a delay before resetting
+            setTimeout(() => {
+                game.player.y = gameHeight / 2 - paddleHeight / 2;
+                game.ai.y = gameHeight / 2 - paddleHeight / 2;
+                game.ball.x = gameWidth / 2;
+                game.ball.y = gameHeight / 2;
+                game.ball.speedX = gameWidth * 0.0045 * (Math.random() > 0.5 ? 1 : -1);
+                game.ball.speedY = gameHeight * 0.00225 * (Math.random() > 0.5 ? 1 : -1);
+                game.ball.trail = [];
+                console.log('Resetting scores to 0');
+                playerScore = 0;
+                aiScore = 0;
+                gameStarted = false;
+                updateScore();
+                draw();
+            }, 250); // 250ms delay
+        }
+
+        function resetBall() {
+            isResettingBall = true;
+            // Add a delay before resetting the ball
+            setTimeout(() => {
+                game.ball.x = gameWidth / 2;
+                game.ball.y = gameHeight / 2;
+                // Reset to default speed (25% slower)
+                game.ball.speedX = gameWidth * 0.0045 * (Math.random() > 0.5 ? 1 : -1);
+                game.ball.speedY = gameHeight * 0.00225 * (Math.random() > 0.5 ? 1 : -1);
+                game.ball.trail = []; // Clear trail
+                isResettingBall = false;
+            }, 250); // 250ms delay
+        }
+
+        function updateScore() {
+            console.log('Updating score display:', playerScore, aiScore);
+            scoreDisplay.textContent = `${playerScore} - ${aiScore}`;
+            // Only end the game if a player has exactly reached WINNING_SCORE
+            if (playerScore === WINNING_SCORE || aiScore === WINNING_SCORE) {
+                console.log('Game ending with scores:', playerScore, aiScore);
+                endGame();
+            }
+        }
+
+        function endGame() {
+            gameStarted = false;
+            cancelAnimationFrame(animationId);
+            gameOverDisplay.style.display = 'block';
+            const winner = playerScore >= WINNING_SCORE ? 'You win!' : 'AI wins!';
+            gameOverDisplay.querySelector('h2').textContent = winner;
+        }
+
+        function drawNeonRect(x, y, width, height, color) {
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
+            ctx.shadowBlur = 0;
+        }
+
+        function updateBallTrail() {
+            // Add current position to the trail
+            game.ball.trail.push({ x: game.ball.x, y: game.ball.y });
+            
+            // Keep only the last 10 positions
+            if (game.ball.trail.length > 10) {
+                game.ball.trail.shift();
+            }
+        }
+
+        function drawBallWithTrail() {
+            // Draw trail
+            game.ball.trail.forEach((pos, index) => {
+                const alpha = index / game.ball.trail.length;
+                const radius = ballSize * (0.5 + (index / game.ball.trail.length) * 0.5);
+                
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(0, 255, 255, ${alpha * 0.3})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Add glow effect
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#0ff';
+                ctx.strokeStyle = `rgba(0, 255, 255, ${alpha * 0.5})`;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            });
+
+            // Draw main ball
+            ctx.beginPath();
+            ctx.arc(game.ball.x, game.ball.y, ballSize, 0, Math.PI * 2);
+            
+            // Multiple layers of glow for the main ball
+            for (let i = 3; i >= 0; i--) {
+                ctx.shadowBlur = 15 + i * 5;
+                ctx.shadowColor = '#0ff';
+                ctx.strokeStyle = `rgba(0, 255, 255, ${0.3 + i * 0.2})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+            ctx.shadowBlur = 0;
+        }
+
+        function updatePlayerPaddle() {
+            const speed = gameHeight * 0.015;  // Reduced from 0.02 to 0.015 (25% slower)
+            if (keysPressed.has('ArrowUp') || keysPressed.has('w') || keysPressed.has('W')) {
+                game.player.y = Math.max(0, game.player.y - speed);
+            }
+            if (keysPressed.has('ArrowDown') || keysPressed.has('s') || keysPressed.has('S')) {
+                game.player.y = Math.min(gameHeight - paddleHeight, game.player.y + speed);
+            }
+        }
+
+        function update() {
+            if (!gameStarted) return;
+
+            // Update player paddle based on keyboard state
+            updatePlayerPaddle();
+
+            // Update ball trail before moving the ball
+            updateBallTrail();
+
+            // Update ball position
+            game.ball.x += game.ball.speedX;
+            game.ball.y += game.ball.speedY;
+
+            // Cap ball speed
+            const maxSpeedX = gameWidth * 0.015;
+            const maxSpeedY = gameHeight * 0.015;
+            game.ball.speedX = Math.min(Math.max(game.ball.speedX, -maxSpeedX), maxSpeedX);
+            game.ball.speedY = Math.min(Math.max(game.ball.speedY, -maxSpeedY), maxSpeedY);
+
+            // Ball collision with top and bottom
+            if (game.ball.y <= ballSize || game.ball.y >= gameHeight - ballSize) {
+                game.ball.speedY = -game.ball.speedY;
+            }
+
+            // Ball collision with paddles - now using ball's center for collision detection
+            if (game.ball.x - ballSize <= paddleWidth && 
+                game.ball.y >= game.player.y && 
+                game.ball.y <= game.player.y + paddleHeight) {
+                game.ball.x = paddleWidth + ballSize; // Prevent ball from getting stuck
+                game.ball.speedX = -game.ball.speedX * 1.05;
+                game.ball.speedY += (game.ball.y - (game.player.y + paddleHeight/2)) * 0.002;
+            }
+
+            if (game.ball.x + ballSize >= gameWidth - paddleWidth && 
+                game.ball.y >= game.ai.y && 
+                game.ball.y <= game.ai.y + paddleHeight) {
+                game.ball.x = gameWidth - paddleWidth - ballSize; // Prevent ball from getting stuck
+                game.ball.speedX = -game.ball.speedX * 1.05;
+                game.ball.speedY += (game.ball.y - (game.ai.y + paddleHeight/2)) * 0.002;
+            }
+
+            // Score points
+            if (!isResettingBall) {  // Only score if we're not already resetting
+                if (game.ball.x < 0) {
+                    console.log('Before AI score:', aiScore);
+                    aiScore = Math.min(aiScore + 1, WINNING_SCORE);
+                    console.log('After AI score:', aiScore);
+                    updateScore();
+                    resetBall();
+                } else if (game.ball.x > gameWidth) {
+                    console.log('Before Player score:', playerScore);
+                    playerScore = Math.min(playerScore + 1, WINNING_SCORE);
+                    console.log('After Player score:', playerScore);
+                    updateScore();
+                    resetBall();
+                }
+            }
+
+            // AI movement
+            const aiSettings = DIFFICULTY_SETTINGS[difficulty];
+            const aiSpeed = gameHeight * aiSettings.aiSpeed;
+            const aiCenter = game.ai.y + paddleHeight/2;
+            const ballPrediction = predictBallPosition();
+            
+            // Add randomness to AI prediction based on difficulty
+            const randomError = (Math.random() - 0.5) * gameHeight * aiSettings.aiPredictionError;
+            const targetY = ballPrediction + randomError;
+            
+            if (Math.abs(aiCenter - targetY) > paddleHeight * 0.1) {
+                if (aiCenter < targetY) {
+                    game.ai.y += aiSpeed;
+                } else {
+                    game.ai.y -= aiSpeed;
+                }
+            }
+
+            // Keep paddles within bounds
+            game.player.y = Math.max(0, Math.min(gameHeight - paddleHeight, game.player.y));
+            game.ai.y = Math.max(0, Math.min(gameHeight - paddleHeight, game.ai.y));
+        }
+
+        function predictBallPosition() {
+            if (game.ball.speedX < 0) return gameHeight/2;
+            
+            let futureY = game.ball.y;
+            let futureSpeedY = game.ball.speedY;
+            let distanceX = gameWidth - paddleWidth - game.ball.x;
+            let bounces = Math.floor(Math.abs(futureY / gameHeight));
+            
+            futureY += (futureSpeedY * (distanceX / game.ball.speedX));
+            futureY = gameHeight - Math.abs(gameHeight - (futureY % (2 * gameHeight)));
+            
+            return futureY;
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, gameWidth, gameHeight);
+
+            // Draw center line
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            ctx.moveTo(gameWidth / 2, 0);
+            ctx.lineTo(gameWidth / 2, gameHeight);
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw paddles with their respective colors
+            drawNeonRect(0, game.player.y, paddleWidth, paddleHeight, game.player.color);
+            drawNeonRect(gameWidth - paddleWidth, game.ai.y, paddleWidth, paddleHeight, game.ai.color);
+            
+            // Draw ball with trail
+            drawBallWithTrail();
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // Event Listeners
+        startBtn.addEventListener('click', () => {
+            if (!gameStarted) {
+                gameStarted = true;
+                gameLoop();
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            cancelAnimationFrame(animationId);
+            resetGame();
+            draw();
+        });
+
+        // Keyboard controls
+        window.addEventListener('keydown', (e) => {
+            keysPressed.add(e.key);
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keysPressed.delete(e.key);
+        });
+
+        canvas.addEventListener('touchstart', handleTouch);
+        canvas.addEventListener('touchmove', handleTouch);
+        canvas.addEventListener('touchend', () => {
+            // Optional: Stop the paddle when touch ends
+            // If you want the paddle to keep its last position, you can remove this
+        });
+
+        function handleTouch(e) {
+            e.preventDefault(); // Prevent scrolling while playing
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const scale = gameHeight / rect.height;
+            
+            // Calculate the touch position relative to the canvas
+            const touchY = (touch.clientY - rect.top) * scale;
+            
+            // Move paddle to touch position, keeping the center of the paddle at touch point
+            game.player.y = Math.max(0, Math.min(gameHeight - paddleHeight, touchY - paddleHeight / 2));
+        }
+
+        // Handle resize and orientation changes
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            // Force a redraw after resize
+            if (!gameStarted) {
+                draw();
+            }
+        });
+
+        // Difficulty selection
+        difficultyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                difficultyBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                difficulty = btn.dataset.difficulty;
+                resetGame();
+            });
+        });
+
+        playAgainBtn.addEventListener('click', () => {
+            gameOverDisplay.style.display = 'none';
+            resetGame();
+            // Start the game after the reset delay
+            setTimeout(() => {
+                gameStarted = true;
+                gameLoop();
+            }, 250);
+        });
+
+        // Initialize game
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        resetGame();
+    </script>
+</body>
+</html>
