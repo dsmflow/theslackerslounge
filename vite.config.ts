@@ -26,7 +26,9 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         arcade: resolve(__dirname, 'arcade/index.html'),
-        'ai-pong': resolve(__dirname, 'arcade/ai-pong/index.html')
+        'ai-pong': resolve(__dirname, 'arcade/ai-pong/index.html'),
+        'snake': resolve(__dirname, 'arcade/snake/index.html'),
+        'tower-defense': resolve(__dirname, 'arcade/tower-defense/index.html')
       },
       output: {
         manualChunks: {
@@ -46,28 +48,20 @@ export default defineConfig({
           if (['css'].includes(ext)) {
             return `assets/css/[name]-[hash].[ext]`;
           }
-          if (['js'].includes(ext) && assetInfo.name.includes('td-pkg')) {
+          if (['js', 'ts'].includes(ext) && (assetInfo.name.includes('td-pkg') || assetInfo.name.includes('game'))) {
             return `[name].[ext]`; // Keep original name for game files
           }
-          return `assets/[name]-[hash].[ext]`;
+          return `assets/[name]-[hash][extname]`;
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
       }
     },
     cssCodeSplit: true,
-    assetsInlineLimit: 4096,
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src')
+      '@': resolve(__dirname, 'src'),
     }
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      target: 'es2020'
-    },
-    exclude: ['@monaco-editor/react']
-  },
-  publicDir: 'public'
+  }
 });

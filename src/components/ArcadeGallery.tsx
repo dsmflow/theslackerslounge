@@ -11,7 +11,7 @@ interface Game {
 const games: Game[] = [
   {
     title: 'Neon Snake',
-    path: '/games/snake',
+    path: '/arcade/snake',
     description: 'Classic Snake game with a modern twist. Collect food and grow longer without hitting the walls or yourself!'
   },
   {
