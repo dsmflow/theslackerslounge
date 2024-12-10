@@ -21,14 +21,15 @@ jobs:
         with:
           node-version: '20'
           
-      - name: Clean install
-        run: |
-          rm -rf package-lock.json node_modules
-          npm install
-          npm install @rollup/rollup-linux-x64-gnu
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
         
       - name: Build
-        run: npm run build:prod
+        run: pnpm run build:prod
         
       - name: Setup Pages
         uses: actions/configure-pages@v4
