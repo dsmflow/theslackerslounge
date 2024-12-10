@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game - The Slackers Lounge</title>
+    <link rel="stylesheet" href="../../src/global.css">
+    <style>
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--color-dark);
+            padding: 2rem;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .canvas-container {
+            border: 2px solid var(--color-gold);
+            border-radius: 8px;
+            box-shadow: 0 0 20px var(--color-gold);
+            margin-bottom: 2rem;
+        }
+
+        .score-container {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            font-family: var(--font-display);
+        }
+
+        .score-item {
+            color: var(--color-cream);
+            text-shadow: 0 0 10px var(--color-cream);
+        }
+
+        .controls {
+            text-align: center;
+            color: var(--color-cream);
+            opacity: 0.8;
+            margin-top: 1rem;
+        }
+
+        .key {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background-color: var(--color-dark);
+            border: 1px solid var(--color-gold);
+            border-radius: 4px;
+            margin: 0 0.25rem;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="text-6xl font-display mb-4">
+                <span class="text-gold text-shadow-gold">&lt;</span>
+                <span class="text-accent text-shadow-accent">snake</span>
+                <span class="text-gold text-shadow-gold">/&gt;</span>
+            </h1>
+        </div>
+        
+        <div class="score-container">
+            <div class="score-item">Score: <span id="current-score">0</span></div>
+            <div class="score-item">High Score: <span id="high-score">0</span></div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <div class="controls">
+            <p>Use <span class="key">←</span> <span class="key">↑</span> <span class="key">↓</span> <span class="key">→</span> or <span class="key">WASD</span> to move</p>
+            <p>Press <span class="key">Space</span> to pause/resume</p>
+        </div>
+    </div>
+    <script type="module" src="./game.ts"></script>
+</body>
+</html>

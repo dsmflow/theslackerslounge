@@ -5,7 +5,6 @@ import Footer from './components/Footer';
 import HomePage from './components/HomePage';
 import AIAssistant from './components/AIAssistant';
 import ConservatoryGallery from './components/ConservatoryGallery';
-import SnakeGame from './components/snake-game';
 import ArcadeGallery from './components/ArcadeGallery';
 import AIPong from './components/AIPong';
 import TowerDefense from './components/TowerDefense';
@@ -27,7 +26,6 @@ const App: React.FC = () => {
             <Route path="/assistant" element={<AIAssistant />} />
             <Route path="/gallery" element={<ConservatoryGallery />} />
             <Route path="/arcade" element={<ArcadeGallery />} />
-            <Route path="/games/snake" element={<SnakeGame />} />
             <Route path="/arcade/ai-pong" element={<AIPong />} />
             <Route path="/arcade/tower-defense/game/build" element={<TowerDefense />} />
           </Routes>
