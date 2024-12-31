@@ -3,105 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Game - The Slackers Lounge</title>
-    <style>
-        :root {
-            --neon-color: #00ff66;
-            --neon-yellow: #ffff00;
-            --bg-color: #1a2f23;
+    <title>Snake - The Slackers Lounge Arcade</title>
+    <script>
+        // Prevent SPA routing for arcade section
+        if (window.parent === window) {
+            window.__ARCADE_SECTION__ = true;
         }
-
+    </script>
+    <style>
         body {
+            font-family: 'Arima', sans-serif;
+            background-color: #1a2f23;
+            color: #f5f5dc;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: var(--bg-color);
-            font-family: 'Arima', sans-serif;
-            color: var(--neon-color);
         }
 
-        .game-container {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            padding: 10px;
-            background: rgba(26, 47, 35, 0.8);
-            border-radius: 10px;
+        canvas {
+            border: 2px solid #0ff;
+            box-shadow: 0 0 10px #0ff;
+            margin: 20px;
         }
 
-        #gameCanvas {
-            border: 2px solid var(--neon-yellow);
-            box-shadow: 0 0 15px var(--neon-yellow);
-            background-color: #000;
-            display: block;
-        }
-
-        #score {
+        .score {
+            color: #0ff;
             font-size: 24px;
-            margin: 20px 0;
-            text-shadow: 0 0 10px var(--neon-color);
-            text-align: center;
-            color: var(--neon-color);
-            font-weight: 500;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px #0ff;
         }
 
-        #gameOver {
-            position: absolute;
+        .game-over {
+            display: none;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            text-align: center;
-            display: none;
-            background: rgba(26, 47, 35, 0.9);
+            background: rgba(0, 0, 0, 0.8);
             padding: 20px;
+            border: 2px solid #0ff;
             border-radius: 10px;
-            border: 2px solid var(--neon-yellow);
-            box-shadow: 0 0 15px var(--neon-yellow);
-            z-index: 10;
+            text-align: center;
+            box-shadow: 0 0 20px #0ff;
         }
 
-        #gameOver h2 {
-            color: var(--neon-yellow);
-            text-shadow: 0 0 10px var(--neon-yellow);
-            margin: 0 0 10px 0;
-        }
-
-        button {
-            background-color: var(--neon-color);
-            color: #000;
-            border: none;
+        .game-over button {
+            background: transparent;
+            border: 2px solid #0ff;
+            color: #0ff;
             padding: 10px 20px;
-            font-size: 16px;
+            margin-top: 20px;
             cursor: pointer;
-            border-radius: 5px;
-            margin-top: 10px;
+            font-family: inherit;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            font-weight: bold;
-            box-shadow: 0 0 10px var(--neon-color);
-            font-family: 'Arima', sans-serif;
         }
 
-        button:hover {
-            background-color: var(--neon-yellow);
-            box-shadow: 0 0 20px var(--neon-yellow);
-            transform: scale(1.05);
+        .game-over button:hover {
+            background: #0ff;
+            color: #000;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #0ff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            text-shadow: 0 0 5px #0ff;
+        }
+
+        .breadcrumbs {
+            position: absolute;
+            top: 20px;
+            left: 120px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            color: #0ff;
+            font-size: 14px;
+        }
+
+        .breadcrumbs a {
+            color: #0ff;
+            text-decoration: none;
+        }
+
+        .breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumbs span {
+            opacity: 0.7;
         }
     </style>
 </head>
 <body>
-    <div id="score">Score: 0</div>
-    <div class="game-container">
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div id="gameOver">
-            <h2>Game Over!</h2>
-            <p>Final Score: <span id="finalScore">0</span></p>
-            <button onclick="resetGame()">Play Again</button>
-        </div>
+    <a href="/arcade" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Arcade
+    </a>
+    
+    <nav class="breadcrumbs">
+        <a href="/">Home</a>
+        <span>/</span>
+        <a href="/arcade">Arcade</a>
+        <span>/</span>
+        <span>Snake</span>
+    </nav>
+
+    <div id="score" class="score">Score: 0</div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    
+    <div id="gameOver" class="game-over">
+        <h2>Game Over!</h2>
+        <p>Your Score: <span id="finalScore">0</span></p>
+        <button onclick="resetGame()">Play Again</button>
     </div>
-    <script src="snake.js"></script>
+
+    <script type="module" src="snake.ts"></script>
 </body>
 </html>

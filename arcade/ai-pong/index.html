@@ -270,7 +270,6 @@
                 game.ball.speedX = gameWidth * 0.0045 * (Math.random() > 0.5 ? 1 : -1);
                 game.ball.speedY = gameHeight * 0.00225 * (Math.random() > 0.5 ? 1 : -1);
                 game.ball.trail = [];
-                console.log('Resetting scores to 0');
                 playerScore = 0;
                 aiScore = 0;
                 gameStarted = false;
@@ -294,11 +293,9 @@
         }
 
         function updateScore() {
-            console.log('Updating score display:', playerScore, aiScore);
             scoreDisplay.textContent = `${playerScore} - ${aiScore}`;
             // Only end the game if a player has exactly reached WINNING_SCORE
             if (playerScore === WINNING_SCORE || aiScore === WINNING_SCORE) {
-                console.log('Game ending with scores:', playerScore, aiScore);
                 endGame();
             }
         }
@@ -403,31 +400,27 @@
             if (game.ball.x - ballSize <= paddleWidth && 
                 game.ball.y >= game.player.y && 
                 game.ball.y <= game.player.y + paddleHeight) {
-                game.ball.x = paddleWidth + ballSize; // Prevent ball from getting stuck
-                game.ball.speedX = -game.ball.speedX * 1.05;
+                game.ball.x = paddleWidth + ballSize;
+                game.ball.speedX = -game.ball.speedX * 1.02;
                 game.ball.speedY += (game.ball.y - (game.player.y + paddleHeight/2)) * 0.002;
             }
 
             if (game.ball.x + ballSize >= gameWidth - paddleWidth && 
                 game.ball.y >= game.ai.y && 
                 game.ball.y <= game.ai.y + paddleHeight) {
-                game.ball.x = gameWidth - paddleWidth - ballSize; // Prevent ball from getting stuck
-                game.ball.speedX = -game.ball.speedX * 1.05;
+                game.ball.x = gameWidth - paddleWidth - ballSize;
+                game.ball.speedX = -game.ball.speedX * 1.02;
                 game.ball.speedY += (game.ball.y - (game.ai.y + paddleHeight/2)) * 0.002;
             }
 
             // Score points
-            if (!isResettingBall) {  // Only score if we're not already resetting
+            if (!isResettingBall) {
                 if (game.ball.x < 0) {
-                    console.log('Before AI score:', aiScore);
                     aiScore = Math.min(aiScore + 1, WINNING_SCORE);
-                    console.log('After AI score:', aiScore);
                     updateScore();
                     resetBall();
                 } else if (game.ball.x > gameWidth) {
-                    console.log('Before Player score:', playerScore);
                     playerScore = Math.min(playerScore + 1, WINNING_SCORE);
-                    console.log('After Player score:', playerScore);
                     updateScore();
                     resetBall();
                 }
@@ -462,10 +455,21 @@
             let futureY = game.ball.y;
             let futureSpeedY = game.ball.speedY;
             let distanceX = gameWidth - paddleWidth - game.ball.x;
-            let bounces = Math.floor(Math.abs(futureY / gameHeight));
+            let timeToReach = distanceX / game.ball.speedX;
             
-            futureY += (futureSpeedY * (distanceX / game.ball.speedX));
-            futureY = gameHeight - Math.abs(gameHeight - (futureY % (2 * gameHeight)));
+            // Calculate future Y position considering bounces
+            futureY += futureSpeedY * timeToReach;
+            
+            // Handle bounces
+            while (futureY < 0 || futureY > gameHeight) {
+                if (futureY < 0) {
+                    futureY = -futureY;  // Reflect off top
+                    futureSpeedY = -futureSpeedY;
+                } else if (futureY > gameHeight) {
+                    futureY = gameHeight - (futureY - gameHeight);  // Reflect off bottom
+                    futureSpeedY = -futureSpeedY;
+                }
+            }
             
             return futureY;
         }

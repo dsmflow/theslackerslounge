@@ -21,7 +21,7 @@ export default defineConfig({
     sourcemap: false,
     minify: 'esbuild',
     target: 'es2015',
-    chunkSizeWarningLimit: 3000,
+    chunkSizeWarningLimit: 4000,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
@@ -31,9 +31,28 @@ export default defineConfig({
         'tower-defense': resolve(__dirname, 'arcade/tower-defense/index.html')
       },
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'monaco-vendor': ['@monaco-editor/react', 'monaco-editor']
+        manualChunks: (id) => {
+          // React vendor chunk
+          if (id.includes('node_modules/react') || 
+              id.includes('node_modules/react-dom') || 
+              id.includes('node_modules/react-router-dom')) {
+            return 'react-vendor';
+          }
+          // Monaco editor chunk
+          if (id.includes('node_modules/@monaco-editor') || 
+              id.includes('node_modules/monaco-editor')) {
+            return 'monaco-vendor';
+          }
+          // Arcade games chunks
+          if (id.includes('/arcade/snake/')) {
+            return 'game-snake';
+          }
+          if (id.includes('/arcade/ai-pong/')) {
+            return 'game-ai-pong';
+          }
+          if (id.includes('/arcade/tower-defense/')) {
+            return 'game-tower-defense';
+          }
         },
         assetFileNames: (assetInfo) => {
           if (!assetInfo.name) return 'assets/[name]-[hash][extname]';
