@@ -14,19 +14,20 @@
     </script>
     <style>
         :root {
-            --neon-color: #0ff;
-            --neon-text-color: #ff0;
+            --neon-color: #33ff77;
+            --neon-text-color: #d4af37;
+            --background-color: #1a2f23;
         }
 
         body {
             margin: 0;
-            background-color: #000;
+            background-color: var(--background-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Arima', cursive;
             color: #fff;
             overflow: hidden;
         }
@@ -151,9 +152,8 @@
             }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arima:wght@400;700&display=swap" rel="stylesheet">
     <link href="neon-theme.css" rel="stylesheet">
-    <script src="game-colors.js" defer></script>
 </head>
 <body>
     <div id="gameContainer">
@@ -189,7 +189,7 @@
         const game = {
             player: {
                 y: 0,
-                color: '#0f0'  // neon green
+                color: '#33ff77'  // neon green
             },
             ai: {
                 y: 0,
@@ -201,7 +201,7 @@
                 size: 10,
                 speedX: 0,
                 speedY: 0,
-                color: '#0ff',  // cyan
+                color: '#33ff77',  // cyan
                 trail: []
             }
         };
@@ -335,14 +335,14 @@
                 
                 ctx.beginPath();
                 ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0, 255, 255, ${alpha * 0.3})`;
+                ctx.strokeStyle = `rgba(51, 255, 119, ${alpha * 0.3})`;
                 ctx.lineWidth = 2;
                 ctx.stroke();
                 
                 // Add glow effect
                 ctx.shadowBlur = 10;
-                ctx.shadowColor = '#0ff';
-                ctx.strokeStyle = `rgba(0, 255, 255, ${alpha * 0.5})`;
+                ctx.shadowColor = '#33ff77';
+                ctx.strokeStyle = `rgba(51, 255, 119, ${alpha * 0.5})`;
                 ctx.stroke();
                 ctx.shadowBlur = 0;
             });
@@ -354,8 +354,8 @@
             // Multiple layers of glow for the main ball
             for (let i = 3; i >= 0; i--) {
                 ctx.shadowBlur = 15 + i * 5;
-                ctx.shadowColor = '#0ff';
-                ctx.strokeStyle = `rgba(0, 255, 255, ${0.3 + i * 0.2})`;
+                ctx.shadowColor = '#33ff77';
+                ctx.strokeStyle = `rgba(51, 255, 119, ${0.3 + i * 0.2})`;
                 ctx.lineWidth = 2;
                 ctx.stroke();
             }
@@ -476,7 +476,7 @@
 
         function draw() {
             // Clear canvas
-            ctx.fillStyle = '#000';
+            ctx.fillStyle = '#1a2f23';
             ctx.fillRect(0, 0, gameWidth, gameHeight);
 
             // Draw center line
@@ -484,7 +484,7 @@
             ctx.beginPath();
             ctx.moveTo(gameWidth / 2, 0);
             ctx.lineTo(gameWidth / 2, gameHeight);
-            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+            ctx.strokeStyle = 'rgba(51, 255, 119, 0.5)';
             ctx.stroke();
             ctx.setLineDash([]);
 
