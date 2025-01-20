@@ -12,7 +12,7 @@ const TutorialPage: React.FC = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const response = await fetch(`/${tutorialId}.md`);
+        const response = await fetch(`/tutorials/${tutorialId}.md`);
         if (!response.ok) {
           throw new Error('Tutorial not found');
         }
