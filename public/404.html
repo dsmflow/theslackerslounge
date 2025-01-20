@@ -8,13 +8,16 @@
     // MIT License
     // https://github.com/rafgraph/spa-github-pages
     var segmentCount = 0;
-    var validPaths = ['assistant', 'gallery', 'games/td'];
+    var validPaths = ['assistant', 'gallery', 'games/td', 'tutorials'];
+    var validPathPrefixes = ['games/', 'tutorials/'];
 
     var l = window.location;
     var path = l.pathname.slice(1).split('/').slice(segmentCount).join('/');
     
     // Check if this is a valid route
-    var isValidPath = validPaths.includes(path) || path === '' || path.startsWith('games/');
+    var isValidPath = validPaths.includes(path) || 
+                     path === '' || 
+                     validPathPrefixes.some(prefix => path.startsWith(prefix));
 
     if (isValidPath) {
       l.replace(
