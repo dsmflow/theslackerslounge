@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dy: 0,
         score: 0,
         gameLoop: null,
-        gameSpeed: 100,
+        gameSpeed: 150, // Slower initial speed for better control
         isPaused: false,
         gameStarted: false
     };
@@ -41,8 +41,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initGame();
 
     function initGame(): void {
-        // Clear any existing game loop
-        if (gameState.gameLoop) clearInterval(gameState.gameLoop);
+        // Clear any existing timeouts/intervals
+        if (gameState.gameLoop) {
+            clearInterval(gameState.gameLoop);
+            gameState.gameLoop = null;
+        }
         
         // Initialize snake in the middle
         gameState.snake = [
@@ -55,32 +58,46 @@ document.addEventListener('DOMContentLoaded', function() {
         gameState.score = 0;
         gameState.isPaused = false;
         gameState.gameStarted = false;
-        gameState.gameSpeed = 100;
+        gameState.gameSpeed = 150;
         gameState.food = generateFood();
         
-        // Update score display
-        const scoreElement = document.getElementById('score');
-        if (scoreElement) {
-            scoreElement.textContent = `Score: ${gameState.score}`;
-        }
+        updateScore();
+        
         const gameOverElement = document.getElementById('gameOver');
         if (gameOverElement) {
             gameOverElement.style.display = 'none';
         }
         
-        // Start drawing
-        drawGame();
+        // Start game loop
+        requestAnimationFrame(gameStep);
+    }
+
+    function updateScore(): void {
+        const scoreElement = document.getElementById('score');
+        if (scoreElement) {
+            scoreElement.textContent = `Score: ${gameState.score}`;
+        }
     }
 
     function generateFood(): Point {
-        let newFood: Point;
-        do {
-            newFood = {
-                x: Math.floor(Math.random() * tileCount),
-                y: Math.floor(Math.random() * tileCount)
-            };
-        } while (gameState.snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
-        return newFood;
+        // Pre-calculate empty spaces for better performance
+        const emptySpaces: Point[] = [];
+        for (let x = 0; x < tileCount; x++) {
+            for (let y = 0; y < tileCount; y++) {
+                if (!gameState.snake.some(segment => segment.x === x && segment.y === y)) {
+                    emptySpaces.push({ x, y });
+                }
+            }
+        }
+        
+        // Randomly select one empty space
+        if (emptySpaces.length > 0) {
+            const randomIndex = Math.floor(Math.random() * emptySpaces.length);
+            return emptySpaces[randomIndex];
+        }
+        
+        // Fallback (shouldn't happen unless snake fills the entire grid)
+        return { x: 0, y: 0 };
     }
 
     function handleKeyPress(event: KeyboardEvent): void {
@@ -94,28 +111,44 @@ document.addEventListener('DOMContentLoaded', function() {
         switch(event.key) {
             case 'ArrowLeft':
             case 'a':
-                if (!goingRight) {
+                if (!goingRight && !gameState.gameStarted) {
+                    gameState.dx = -1;
+                    gameState.dy = 0;
+                    startGame();
+                } else if (!goingRight) {
                     gameState.dx = -1;
                     gameState.dy = 0;
                 }
                 break;
             case 'ArrowUp':
             case 'w':
-                if (!goingDown) {
+                if (!goingDown && !gameState.gameStarted) {
+                    gameState.dx = 0;
+                    gameState.dy = -1;
+                    startGame();
+                } else if (!goingDown) {
                     gameState.dx = 0;
                     gameState.dy = -1;
                 }
                 break;
             case 'ArrowRight':
             case 'd':
-                if (!goingLeft) {
+                if (!goingLeft && !gameState.gameStarted) {
+                    gameState.dx = 1;
+                    gameState.dy = 0;
+                    startGame();
+                } else if (!goingLeft) {
                     gameState.dx = 1;
                     gameState.dy = 0;
                 }
                 break;
             case 'ArrowDown':
             case 's':
-                if (!goingUp) {
+                if (!goingUp && !gameState.gameStarted) {
+                    gameState.dx = 0;
+                    gameState.dy = 1;
+                    startGame();
+                } else if (!goingUp) {
                     gameState.dx = 0;
                     gameState.dy = 1;
                 }
@@ -123,12 +156,6 @@ document.addEventListener('DOMContentLoaded', function() {
             case ' ':
                 togglePause();
                 break;
-        }
-
-        // Start game on first key press
-        if (!gameState.gameStarted && ['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'a', 'w', 'd', 's'].includes(event.key)) {
-            gameState.gameStarted = true;
-            gameState.gameLoop = window.setInterval(gameStep, gameState.gameSpeed);
         }
     }
 
@@ -141,44 +168,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function gameStep(): void {
-        if (gameState.isPaused) return;
-
-        // Move snake
-        const head: Point = { 
-            x: gameState.snake[0].x + gameState.dx, 
-            y: gameState.snake[0].y + gameState.dy 
-        };
-        
-        // Check for collisions
-        if (head.x < 0 || head.x >= tileCount || 
-            head.y < 0 || head.y >= tileCount ||
-            gameState.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
-            gameOver();
+        if (gameState.isPaused) {
+            requestAnimationFrame(gameStep);
             return;
         }
 
-        gameState.snake.unshift(head);
+        // Only process movement if the game has started (player has pressed a key)
+        if (gameState.gameStarted) {
+            const head: Point = { 
+                x: gameState.snake[0].x + gameState.dx, 
+                y: gameState.snake[0].y + gameState.dy 
+            };
+            
+            // Check for collisions
+            if (head.x < 0 || head.x >= tileCount || 
+                head.y < 0 || head.y >= tileCount ||
+                gameState.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
 
-        // Check if food is eaten
-        if (head.x === gameState.food.x && head.y === gameState.food.y) {
-            gameState.score += 10;
-            const scoreElement = document.getElementById('score');
-            if (scoreElement) {
-                scoreElement.textContent = `Score: ${gameState.score}`;
+            gameState.snake.unshift(head);
+
+            // Check if food is eaten
+            if (head.x === gameState.food.x && head.y === gameState.food.y) {
+                gameState.score += 10;
+                updateScore();
+                
+                // Generate new food position before updating game speed
+                gameState.food = generateFood();
+                
+                // Smoother speed increase without interval changes
+                if (gameState.gameSpeed > 80) {
+                    gameState.gameSpeed = Math.max(80, gameState.gameSpeed - 2);
+                }
+            } else {
+                gameState.snake.pop();
             }
-            gameState.food = generateFood();
-            // Increase speed slightly
-            if (gameState.gameSpeed > 70) {
-                if (gameState.gameLoop) clearInterval(gameState.gameLoop);
-                gameState.gameSpeed = Math.max(70, gameState.gameSpeed - 1);
-                gameState.gameLoop = window.setInterval(gameStep, gameState.gameSpeed);
-            }
-        } else {
-            gameState.snake.pop();
         }
 
-        // Draw game
         drawGame();
+
+        // Schedule next game step with current speed
+        setTimeout(() => {
+            requestAnimationFrame(gameStep);
+        }, gameState.gameSpeed);
+    }
+
+    function startGame(): void {
+        if (!gameState.gameStarted) {
+            gameState.gameStarted = true;
+            drawGame();
+        }
     }
 
     function drawGame(): void {
@@ -186,23 +227,37 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.fillStyle = '#1a2f23';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw snake
+        // Draw snake with glow effect
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#39ff14';
         ctx.fillStyle = '#39ff14';
         gameState.snake.forEach(segment => {
             ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
         });
 
-        // Draw food
+        // Draw food with glow effect
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#ff0';
         ctx.fillStyle = '#ff0';
         ctx.fillRect(gameState.food.x * gridSize, gameState.food.y * gridSize, gridSize - 2, gridSize - 2);
+        
+        // Reset shadow for next frame
+        ctx.shadowBlur = 0;
     }
 
     function gameOver(): void {
         const gameOverElement = document.getElementById('gameOver');
+        const finalScoreElement = document.getElementById('finalScore');
         if (gameOverElement) {
+            if (finalScoreElement) {
+                finalScoreElement.textContent = gameState.score.toString();
+            }
             gameOverElement.style.display = 'block';
         }
-        if (gameState.gameLoop) clearInterval(gameState.gameLoop);
+        if (gameState.gameLoop) {
+            clearInterval(gameState.gameLoop);
+            gameState.gameLoop = null;
+        }
     }
 
     // Make resetGame available globally for the button

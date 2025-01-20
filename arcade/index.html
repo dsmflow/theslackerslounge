@@ -6,9 +6,18 @@
     <title>The Slackers Lounge Arcade</title>
     <link href="https://fonts.googleapis.com/css2?family=Arima&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script>
-        // Prevent SPA routing for arcade section
+        // Prevent SPA routing for arcade section and handle breadcrumbs visibility
         if (window.parent === window) {
             window.__ARCADE_SECTION__ = true;
+            document.addEventListener('DOMContentLoaded', () => {
+                const backLink = document.querySelector('.back-link');
+                if (backLink) backLink.style.display = 'block';
+            });
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                const backLink = document.querySelector('.back-link');
+                if (backLink) backLink.style.display = 'none';
+            });
         }
     </script>
     <style>
@@ -58,7 +67,7 @@
             background: rgba(0, 0, 0, 0.3);
             border: 2px solid var(--color-accent);
             border-radius: 15px;
-            padding: 20px;
+            padding: 0;
             margin: 20px auto;
             width: 100%;
             max-width: 800px;
@@ -66,6 +75,9 @@
             position: relative;
             overflow: hidden;
             box-shadow: var(--shadow-accent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .game-console iframe {

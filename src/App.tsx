@@ -9,6 +9,7 @@ import ArcadeGallery from './components/ArcadeGallery';
 import AIPong from './components/AIPong';
 import Snake from './components/Snake';
 import TowerDefense from './components/TowerDefense';
+import TutorialPage from './components/TutorialPage';
 import { initializeCache } from './utils/imageCache';
 import { initializeModelLoader } from './utils/modelLoader';
 
@@ -30,6 +31,7 @@ const App: React.FC = () => {
             <Route path="/arcade/snake" element={<Snake />} />
             <Route path="/arcade/ai-pong" element={<AIPong />} />
             <Route path="/arcade/tower-defense/game/build" element={<TowerDefense />} />
+            <Route path="/tutorials/:tutorialId" element={<TutorialPage />} />
           </Routes>
         </main>
         <Footer />

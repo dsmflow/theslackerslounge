@@ -267,8 +267,8 @@
                 game.ai.y = gameHeight / 2 - paddleHeight / 2;
                 game.ball.x = gameWidth / 2;
                 game.ball.y = gameHeight / 2;
-                game.ball.speedX = gameWidth * 0.0045 * (Math.random() > 0.5 ? 1 : -1);
-                game.ball.speedY = gameHeight * 0.00225 * (Math.random() > 0.5 ? 1 : -1);
+                game.ball.speedX = gameWidth * 0.00675 * (Math.random() > 0.5 ? 1 : -1);
+                game.ball.speedY = gameHeight * 0.003375 * (Math.random() > 0.5 ? 1 : -1);
                 game.ball.trail = [];
                 playerScore = 0;
                 aiScore = 0;
@@ -285,8 +285,8 @@
                 game.ball.x = gameWidth / 2;
                 game.ball.y = gameHeight / 2;
                 // Reset to default speed (25% slower)
-                game.ball.speedX = gameWidth * 0.0045 * (Math.random() > 0.5 ? 1 : -1);
-                game.ball.speedY = gameHeight * 0.00225 * (Math.random() > 0.5 ? 1 : -1);
+                game.ball.speedX = gameWidth * 0.00675 * (Math.random() > 0.5 ? 1 : -1);
+                game.ball.speedY = gameHeight * 0.003375 * (Math.random() > 0.5 ? 1 : -1);
                 game.ball.trail = []; // Clear trail
                 isResettingBall = false;
             }, 250); // 250ms delay

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MembershipModal from './MembershipModal';
 import Typed from 'typed.js';
+import TutorialsSection from './TutorialsSection';
 
 const HomePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -137,6 +138,9 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Tutorials Section */}
+      <TutorialsSection />
 
       {/* Members Section */}
       <div className="text-center py-12">
