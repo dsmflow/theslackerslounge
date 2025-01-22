@@ -7,9 +7,27 @@
     // Single Page Apps for GitHub Pages
     // MIT License
     // https://github.com/rafgraph/spa-github-pages
+    
+    /** @type {number} - Number of segments to remove from the path */
     var segmentCount = 0;
-    var validPaths = ['assistant', 'gallery', 'games/td', 'tutorials'];
-    var validPathPrefixes = ['games/', 'tutorials/'];
+
+    /** @type {string[]} - List of valid exact paths */
+    var validPaths = [
+      'assistant',     // AI Assistant route
+      'gallery',       // Image gallery
+      'arcade/td',     // Tower defense game
+      'arcade/pong',   // AI Pong game
+      'arcade/snake',  // Snake game
+      'tutorials'      // Tutorial section
+    ];
+
+    /** @type {string[]} - List of valid path prefixes */
+    var validPathPrefixes = [
+      'arcade/',       // Arcade games directory
+      'tutorials/',    // Tutorials directory
+      'assets/',       // Static assets
+      'music/'         // Music streams and audio files
+    ];
 
     var l = window.location;
     var path = l.pathname.slice(1).split('/').slice(segmentCount).join('/');

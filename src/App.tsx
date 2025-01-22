@@ -10,6 +10,7 @@ import AIPong from './components/AIPong';
 import Snake from './components/Snake';
 import TowerDefense from './components/TowerDefense';
 import TutorialPage from './components/TutorialPage';
+import Jukebox from './components/Jukebox';
 import { initializeCache } from './utils/imageCache';
 import { initializeModelLoader } from './utils/modelLoader';
 
@@ -20,7 +21,7 @@ initializeModelLoader();
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen bg-dark text-cream">
         <Header />
         <main className="flex-grow">
           <Routes>
@@ -35,6 +36,7 @@ const App: React.FC = () => {
           </Routes>
         </main>
         <Footer />
+        <Jukebox />
       </div>
     </Router>
   );
