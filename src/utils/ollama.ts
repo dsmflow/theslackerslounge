@@ -1,108 +1,56 @@
-import { getCachedImage, cacheImage } from './imageCache';
+import OpenAI from 'openai';
 
-const OLLAMA_HOST = 'http://localhost:11434'; // Default Ollama port
+// Ensure the API key is available
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+if (!apiKey) {
+  console.error('VITE_OPENAI_API_KEY is not set in the environment variables.');
+  // You might want to throw an error or handle this case appropriately
+}
+
+const openai = new OpenAI({
+  apiKey: apiKey,
+  dangerouslyAllowBrowser: true // !! IMPORTANT !! Only use this for testing/local dev
+});
 
 export interface GenerationResponse {
   url: string;
   error?: string;
 }
 
-export interface ModelStatus {
-  loaded: boolean;
-  error?: string;
-}
-
 export async function generateImage(
-  modelId: string,
   prompt: string,
-  parameters: Record<string, any>,
-  onProgress?: (progress: number) => void
 ): Promise<GenerationResponse> {
-  try {
-    // Check cache first
-    const cacheKey = `${modelId}:${prompt}:${JSON.stringify(parameters)}`;
-    const cachedImage = await getCachedImage(cacheKey);
-    if (cachedImage) {
-      return { url: cachedImage };
-    }
+  if (!apiKey) {
+    return { url: '', error: 'OpenAI API Key not configured.' };
+  }
+  if (!prompt.trim()) {
+    return { url: '', error: 'Prompt cannot be empty.' };
+  }
 
-    // Call Ollama API
-    const response = await fetch(`${OLLAMA_HOST}/api/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: modelId,
-        prompt: prompt,
-        stream: false,
-        options: {
-          num_predict: parameters.num_inference_steps || 50,
-          temperature: parameters.guidance_scale || 7.5,
-        },
-      }),
+  try {
+    console.log("Calling OpenAI with prompt:", prompt);
+    const response = await openai.images.generate({
+      model: "dall-e-3", // Or dall-e-2 if preferred/needed
+      prompt: prompt,
+      n: 1, // Generate one image
+      size: "1024x1024", // Or other supported sizes like "1024x1792", "1792x1024"
+      response_format: "url", // Get a temporary URL directly
     });
 
-    if (!response.ok) {
-      throw new Error(`Ollama API error: ${response.statusText}`);
+    console.log("OpenAI response:", response);
+
+    const imageUrl = response.data[0]?.url;
+
+    if (!imageUrl) {
+      throw new Error('No image URL received from OpenAI.');
     }
 
-    const data = await response.json();
-    
-    // Convert base64 image to blob URL
-    const imageBlob = await fetch(`data:image/png;base64,${data.image}`).then(r => r.blob());
-    const url = URL.createObjectURL(imageBlob);
+    return { url: imageUrl };
 
-    // Cache the result
-    await cacheImage(cacheKey, url);
-
-    return { url };
-  } catch (error) {
-    console.error('Error generating image:', error);
-    return { url: '', error: error.message };
-  }
-}
-
-export async function checkModelStatus(modelId: string): Promise<ModelStatus> {
-  try {
-    const response = await fetch(`${OLLAMA_HOST}/api/show`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: modelId,
-      }),
-    });
-
-    if (!response.ok) {
-      return { loaded: false, error: `Failed to check model status: ${response.statusText}` };
-    }
-
-    const data = await response.json();
-    return { loaded: true };
-  } catch (error) {
-    return { loaded: false, error: error.message };
-  }
-}
-
-export function validateParameters(modelId: string, parameters: Record<string, any>): string[] {
-  const errors: string[] = [];
-  
-  if (parameters.num_inference_steps && (parameters.num_inference_steps < 1 || parameters.num_inference_steps > 100)) {
-    errors.push('Number of inference steps must be between 1 and 100');
-  }
-  
-  if (parameters.guidance_scale && (parameters.guidance_scale < 1 || parameters.guidance_scale > 20)) {
-    errors.push('Guidance scale must be between 1 and 20');
-  }
-  
-  return errors;
-}
-
-// Helper function to clean up object URLs when they're no longer needed
-export function releaseImageUrl(url: string): void {
-  if (url.startsWith('blob:')) {
-    URL.revokeObjectURL(url);
+  } catch (error: any) {
+    console.error('Error generating image with OpenAI:', error);
+    const errorMessage = error.response?.data?.error?.message || error.message || 'An unknown error occurred';
+    return { url: '', error: `OpenAI API Error: ${errorMessage}` };
   }
 }
