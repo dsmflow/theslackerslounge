@@ -13,8 +13,8 @@ const membershipTiers: MembershipTier[] = [
     description: "Basic access to The Slackers Lounge",
     benefits: [
       "Limited access to Speakeasy AI assistant",
-      "Access to The Arcade",
-      "View public images in The Conservatory"
+      "View public images in The Conservatory",
+      "Access to public tutorials"
     ],
     price: "$0/mo."
   },
@@ -23,8 +23,8 @@ const membershipTiers: MembershipTier[] = [
     description: "Enhanced experience for regular visitors",
     benefits: [
       "Full access to Speakeasy AI assistant",
-      "High score tracking in The Arcade",
       "Create and share images in The Conservatory",
+      "Access to premium tutorials",
       "Priority support"
     ],
     price: "$20/mo."
@@ -34,8 +34,8 @@ const membershipTiers: MembershipTier[] = [
     description: "Premium features for power users",
     benefits: [
       "Exclusive AI models in Speakeasy",
-      "Custom game themes in The Arcade",
       "Unlimited image generation in The Conservatory",
+      "Private tutorial sessions",
       "24/7 concierge support"
     ],
     price: "$200/mo."

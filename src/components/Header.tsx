@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, MessageSquare, Leaf, Gamepad2 } from 'lucide-react';
+import { Home, MessageSquare, Leaf } from 'lucide-react';
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -44,15 +44,6 @@ const Header: React.FC = () => {
                 aria-label="The Conservatory"
               >
                 <Leaf size={24} />
-              </Link>
-            </li>
-            <li>
-              <Link 
-                to="/arcade" 
-                className={`${isActive('/arcade') ? 'text-gold' : 'text-cream'} hover:text-gold transition-colors duration-300`} 
-                aria-label="The Arcade"
-              >
-                <Gamepad2 size={24} />
               </Link>
             </li>
           </ul>

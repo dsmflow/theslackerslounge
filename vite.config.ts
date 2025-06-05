@@ -24,11 +24,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 4000,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
-        arcade: resolve(__dirname, 'arcade/index.html'),
-        'ai-pong': resolve(__dirname, 'arcade/ai-pong/index.html'),
-        'snake': resolve(__dirname, 'arcade/snake/index.html'),
-        'tower-defense': resolve(__dirname, 'arcade/tower-defense/index.html')
+        main: resolve(__dirname, 'index.html')
       },
       output: {
         manualChunks: (id) => {
@@ -42,16 +38,6 @@ export default defineConfig({
           if (id.includes('node_modules/@monaco-editor') || 
               id.includes('node_modules/monaco-editor')) {
             return 'monaco-vendor';
-          }
-          // Arcade games chunks
-          if (id.includes('/arcade/snake/')) {
-            return 'game-snake';
-          }
-          if (id.includes('/arcade/ai-pong/')) {
-            return 'game-ai-pong';
-          }
-          if (id.includes('/arcade/tower-defense/')) {
-            return 'game-tower-defense';
           }
         },
         assetFileNames: (assetInfo) => {
@@ -67,9 +53,7 @@ export default defineConfig({
           if (['css'].includes(ext)) {
             return `assets/css/[name]-[hash].[ext]`;
           }
-          if (['js', 'ts'].includes(ext) && (assetInfo.name.includes('td-pkg') || assetInfo.name.includes('game'))) {
-            return `[name].[ext]`; // Keep original name for game files
-          }
+
           return `assets/[name]-[hash][extname]`;
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',

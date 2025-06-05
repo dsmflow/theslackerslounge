@@ -1,9 +1,4 @@
 [[redirects]]
-  from = "/arcade/ai-pong"
-  to = "/arcade/ai-pong/index.html"
-  status = 200
-
-[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
