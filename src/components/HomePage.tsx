@@ -9,7 +9,7 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     const typed = new Typed('#typed', {
-      strings: ['Pool Queue App', 'Smol AGI', 'AI Integration', 'Retro Games'],
+      strings: ['Pool Queue App', 'Smol AGI', 'AI Integration', 'Cloud Solutions'],
       typeSpeed: 50,
       backSpeed: 50,
       loop: true
@@ -42,7 +42,7 @@ const HomePage: React.FC = () => {
       {/* Services Grid */}
       <div className="bg-dark/90 rounded-lg p-8 mb-8 max-w-7xl mx-auto border-2 border-gold shadow-gold">
         <h2 className="text-3xl font-display text-accent mb-4 text-shadow-accent">The Establishment</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="p-4 rounded-lg border-2 border-accent shadow-accent bg-dark/50 hover:border-cream hover:shadow-cream transition-all duration-300 flex flex-col">
             <h3 className="text-xl font-display text-accent mb-2 text-shadow-accent">The Speakeasy</h3>
             <p className="text-cream mb-4 flex-grow text-shadow-cream opacity-90">Engage in witty banter with our AI-powered assistant.</p>
@@ -55,13 +55,6 @@ const HomePage: React.FC = () => {
             <p className="text-cream mb-4 flex-grow text-shadow-cream opacity-90">Generate and explore AI-created images in our virtual gallery.</p>
             <div className="flex justify-center">
               <Link to="/gallery" className="inline-block px-4 py-2 rounded-md border-2 border-gold text-gold hover:bg-gold hover:text-dark transition-all duration-300 hover:shadow-gold text-shadow-gold">View</Link>
-            </div>
-          </div>
-          <div className="p-4 rounded-lg border-2 border-accent shadow-accent bg-dark/50 hover:border-cream hover:shadow-cream transition-all duration-300 flex flex-col">
-            <h3 className="text-xl font-display text-accent mb-2 text-shadow-accent">The Arcade</h3>
-            <p className="text-cream mb-4 flex-grow text-shadow-cream opacity-90">Challenge yourself with our collection of retro-inspired games.</p>
-            <div className="flex justify-center">
-              <Link to="/arcade" className="inline-block px-4 py-2 rounded-md border-2 border-gold text-gold hover:bg-gold hover:text-dark transition-all duration-300 hover:shadow-gold text-shadow-gold">Enter</Link>
             </div>
           </div>
         </div>

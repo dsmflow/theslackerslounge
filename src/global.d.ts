@@ -1,6 +1,5 @@
 interface Window {
   webkitSpeechRecognition: typeof SpeechRecognition;
-  __ARCADE_SECTION__?: boolean;
 }
 
 declare var SpeechRecognition: {
